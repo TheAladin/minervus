@@ -1,4 +1,8 @@
-from collections.abc import Iterator
+import os
+from collections.abc import Callable, Iterator
+
+# Settings are read on import, so this has to come before the app imports.
+os.environ["JWT_SECRET"] = "test-secret-that-is-at-least-32-characters-long"
 
 import pytest
 from alembic import command
@@ -41,7 +45,13 @@ def db(engine: Engine) -> Iterator[Session]:
 
 
 @pytest.fixture
-def client(db: Session) -> Iterator[TestClient]:
+def client_factory(db: Session) -> Iterator[Callable[[], TestClient]]:
+    """Makes clients with separate cookie jars, one per logged-in person."""
     app.dependency_overrides[get_db] = lambda: db
-    yield TestClient(app)
+    yield lambda: TestClient(app)
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client(client_factory: Callable[[], TestClient]) -> TestClient:
+    return client_factory()

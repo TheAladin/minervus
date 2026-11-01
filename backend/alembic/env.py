@@ -3,15 +3,17 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine
 
+from app import models
 from app.config import settings
-from app.db import Base
 
 config = context.config
 
-if config.config_file_name is not None and config.attributes.get("configure_logging", True):
+if config.config_file_name is not None and config.attributes.get(
+    "configure_logging", True
+):
     fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+target_metadata = models.Base.metadata
 database_url = config.attributes.get("database_url", settings.database_url)
 
 
