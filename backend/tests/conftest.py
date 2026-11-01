@@ -45,9 +45,24 @@ def db(engine: Engine) -> Iterator[Session]:
 
 
 @pytest.fixture
-def client_factory(db: Session) -> Iterator[Callable[[], TestClient]]:
+def get_test_db(db: Session) -> Callable[[], Iterator[Session]]:
+    """Stands in for get_db. Like a real request, it loses anything not committed."""
+
+    def get_session() -> Iterator[Session]:
+        try:
+            yield db
+        finally:
+            db.rollback()
+
+    return get_session
+
+
+@pytest.fixture
+def client_factory(
+    get_test_db: Callable[[], Iterator[Session]],
+) -> Iterator[Callable[[], TestClient]]:
     """Makes clients with separate cookie jars, one per logged-in person."""
-    app.dependency_overrides[get_db] = lambda: db
+    app.dependency_overrides[get_db] = get_test_db
     yield lambda: TestClient(app)
     app.dependency_overrides.clear()
 

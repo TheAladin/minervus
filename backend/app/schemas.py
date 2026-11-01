@@ -6,6 +6,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
 from app.models import Role
 
 Email = Annotated[EmailStr, AfterValidator(str.lower)]
+NewPassword = Annotated[str, Field(min_length=8, max_length=128)]
 
 
 class Credentials(BaseModel):
@@ -14,7 +15,7 @@ class Credentials(BaseModel):
 
 
 class Registration(Credentials):
-    password: str = Field(min_length=8, max_length=128)
+    password: NewPassword
 
 
 class UserOut(BaseModel):
@@ -25,3 +26,7 @@ class UserOut(BaseModel):
     role: Role
     is_active: bool
     created_at: datetime
+
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool
