@@ -188,6 +188,16 @@ def test_bulk_create_cards(ada: TestClient, deck: dict) -> None:
     assert len(ada.get(url).json()) == 3
 
 
+def test_the_largest_bulk_create_fits_within_the_request_size_limit(
+    ada: TestClient, deck: dict
+) -> None:
+    payload = {"cards": [{"front": "x" * 10_000, "back": "y" * 10_000}] * 100}
+
+    response = ada.post(f"/api/decks/{deck['id']}/cards/bulk", json=payload)
+
+    assert response.status_code == 201
+
+
 def test_bulk_create_saves_nothing_if_any_card_is_invalid(
     ada: TestClient, deck: dict, db: Session
 ) -> None:

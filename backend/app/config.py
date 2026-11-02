@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     )
     jwt_secret: str = Field(min_length=32)
     cookie_secure: bool = False
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-haiku-5-5"
 
 
 settings = Settings()

@@ -3,6 +3,8 @@ from collections.abc import Callable, Iterator
 
 # Settings are read on import, so this has to come before the app imports.
 os.environ["JWT_SECRET"] = "test-secret-that-is-at-least-32-characters-long"
+# Without a key, a test that forgets the fake client gets a 503, not a real API call.
+os.environ["ANTHROPIC_API_KEY"] = ""
 
 import pytest
 from alembic import command

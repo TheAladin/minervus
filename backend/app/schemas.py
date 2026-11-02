@@ -87,6 +87,10 @@ class CardBulkCreate(BaseModel):
     cards: list[CardCreate] = Field(min_length=1, max_length=100)
 
 
+class CardDrafts(BaseModel):
+    cards: list[CardCreate]
+
+
 class CardOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

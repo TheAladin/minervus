@@ -9,15 +9,27 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.routers import admin, auth, decks, study
+from app.middleware import BodySizeLimitMiddleware
+from app.pdf import MAX_PDF_BYTES
+from app.routers import admin, auth, decks, generate, study
 
 logger = logging.getLogger(__name__)
 
+MAX_REQUEST_BYTES = 5 * 1024 * 1024
+# Allows for the largest PDF plus the rest of its multipart form.
+MAX_UPLOAD_REQUEST_BYTES = MAX_PDF_BYTES + 1024 * 1024
+
 app = FastAPI(title="Minervus")
+app.add_middleware(
+    BodySizeLimitMiddleware,
+    max_bytes=MAX_REQUEST_BYTES,
+    max_upload_bytes=MAX_UPLOAD_REQUEST_BYTES,
+)
 app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(decks.router)
 app.include_router(study.router)
+app.include_router(generate.router)
 
 
 @app.exception_handler(RequestValidationError)
