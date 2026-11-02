@@ -52,6 +52,17 @@ test('hides studying when nothing is due', async () => {
   expect(screen.queryByRole('link', { name: 'Study' })).not.toBeInTheDocument()
 })
 
+test('links to AI card generation', async () => {
+  mockApi(deckRoutes())
+
+  renderApp('/decks/7')
+
+  expect(await screen.findByRole('link', { name: 'Generate cards with AI' })).toHaveAttribute(
+    'href',
+    '/decks/7/generate',
+  )
+})
+
 test('explains an empty deck', async () => {
   mockApi(deckRoutes({ 'GET /decks/7/cards': [] }))
 

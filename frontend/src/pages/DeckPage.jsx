@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { request } from '../api/client.js'
 import {
@@ -106,7 +106,15 @@ export default function DeckPage() {
       )}
 
       <Panel className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold text-stone-700">Add a card</h2>
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-sm font-semibold text-stone-700">Add a card</h2>
+          <Link
+            to={`${url}/generate`}
+            className="text-sm font-medium underline underline-offset-4"
+          >
+            Generate cards with AI
+          </Link>
+        </div>
         <CardForm submitLabel="Add card" onSubmit={handleAddCard} clearOnSave />
       </Panel>
 
