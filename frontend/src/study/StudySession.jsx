@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { request } from '../api/client.js'
 import { Button, ErrorMessage, Panel } from '../components/ui.jsx'
@@ -75,7 +75,8 @@ export default function StudySession({ deckId, cards, onFinished }) {
     [deckId, cardId],
   )
 
-  useEffect(() => {
+  // A layout effect, so the keys work from the moment the card is on screen.
+  useLayoutEffect(() => {
     function handleKeyDown(event) {
       if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return
       if (!revealed) {

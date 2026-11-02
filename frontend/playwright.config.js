@@ -1,5 +1,7 @@
 import { defineConfig } from '@playwright/test'
 
+import { ADMIN_EMAIL, PASSWORD } from './e2e/constants.js'
+
 const API_PORT = 8100
 const WEB_PORT = 5174
 const FAKE_ANTHROPIC_PORT = 8101
@@ -30,6 +32,7 @@ export default defineConfig({
       cwd: '../backend',
       command: [
         '.venv/bin/python -m scripts.prepare_e2e_db',
+        `printf '%s\\n' '${PASSWORD}' | .venv/bin/python -m app.cli create-admin --email ${ADMIN_EMAIL} --password-stdin`,
         `exec .venv/bin/uvicorn app.main:app --port ${API_PORT} --log-level warning`,
       ].join(' && '),
       env: {

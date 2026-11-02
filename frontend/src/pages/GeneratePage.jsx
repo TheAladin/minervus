@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useBlocker, useNavigate, useParams } from 'react-router-dom'
 
 import { request } from '../api/client.js'
@@ -24,7 +24,8 @@ function useDraftGuard(hasDrafts, saved, saving) {
   }, [blocker, saving])
 
   // Router navigation is covered above, and this covers reloading or closing the tab.
-  useEffect(() => {
+  // A layout effect, so the warning is in place as soon as the drafts are on screen.
+  useLayoutEffect(() => {
     if (!hasDrafts) return undefined
     const warn = (event) => event.preventDefault()
     window.addEventListener('beforeunload', warn)

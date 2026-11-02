@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
-import { fillCredentials, logIn, PASSWORD, register, uniqueEmail } from './helpers.js'
+import { PASSWORD } from './constants.js'
+import { fillCredentials, logIn, register, uniqueEmail } from './helpers.js'
 
 test('register, stay signed in across a reload, log out and log back in', async ({ page }) => {
   const email = await register(page)

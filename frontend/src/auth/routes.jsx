@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
 import { LoadError, Loading } from '../components/ui.jsx'
+import NotFoundPage from '../pages/NotFoundPage.jsx'
 import { useAuth } from './useAuth.js'
 
 /** Shown until the first session check has an answer. */
@@ -22,6 +23,13 @@ export function RequireAuth() {
     return <Navigate to="/login" replace state={loggedOut ? undefined : { from: location }} />
   }
   return <Outlet />
+}
+
+/** Shows others a plain "not found", so the admin area doesn't advertise itself. */
+export function RequireAdmin() {
+  const { user } = useAuth()
+
+  return user.role === 'admin' ? <Outlet /> : <NotFoundPage />
 }
 
 /** Keeps signed-in people away from the login and registration pages. */

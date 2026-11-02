@@ -1,7 +1,8 @@
 import { createRoutesFromElements, Route } from 'react-router-dom'
 
-import { PublicOnly, RequireAuth } from './auth/routes.jsx'
+import { PublicOnly, RequireAdmin, RequireAuth } from './auth/routes.jsx'
 import Layout from './components/Layout.jsx'
+import AdminUsersPage from './pages/AdminUsersPage.jsx'
 import CrashPage from './pages/CrashPage.jsx'
 import DeckPage from './pages/DeckPage.jsx'
 import DecksPage from './pages/DecksPage.jsx'
@@ -22,6 +23,9 @@ export const routes = createRoutesFromElements(
       <Route path="decks/:deckId" element={<DeckPage />} />
       <Route path="decks/:deckId/study" element={<StudyPage />} />
       <Route path="decks/:deckId/generate" element={<GeneratePage />} />
+      <Route element={<RequireAdmin />}>
+        <Route path="admin/users" element={<AdminUsersPage />} />
+      </Route>
     </Route>
     <Route path="*" element={<NotFoundPage />} />
   </Route>,

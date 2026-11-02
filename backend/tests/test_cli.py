@@ -1,3 +1,5 @@
+import io
+import sys
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 
@@ -23,6 +25,10 @@ def cli_uses_the_test_session(
 def answer_prompts(monkeypatch: pytest.MonkeyPatch, *answers: str) -> None:
     replies = iter(answers)
     monkeypatch.setattr(cli.getpass, "getpass", lambda prompt: next(replies))
+
+
+def type_into_stdin(monkeypatch: pytest.MonkeyPatch, text: str) -> None:
+    monkeypatch.setattr(sys, "stdin", io.StringIO(text))
 
 
 def failure_message(*args: str) -> str:
@@ -55,6 +61,49 @@ def test_create_admin_makes_an_account_that_can_use_the_admin_api(
     )
     assert response.json()["role"] == "admin"
     assert client.get("/api/admin/users").status_code == 200
+
+
+def test_create_admin_can_read_the_password_from_stdin(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    answer_prompts(monkeypatch)
+    type_into_stdin(monkeypatch, f"{PASSWORD}\n")
+
+    cli.main(["create-admin", "--email", "root@example.com", "--password-stdin"])
+
+    assert "Created admin root@example.com" in capsys.readouterr().out
+    response = client.post(
+        "/api/auth/login", json={"email": "root@example.com", "password": PASSWORD}
+    )
+    assert response.json()["role"] == "admin"
+
+
+def test_a_password_from_stdin_keeps_its_spaces_but_not_the_line_ending(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    type_into_stdin(monkeypatch, " correct horse \r\n")
+
+    cli.main(["create-admin", "--email", "root@example.com", "--password-stdin"])
+
+    def log_in(password: str) -> int:
+        credentials = {"email": "root@example.com", "password": password}
+        return client.post("/api/auth/login", json=credentials).status_code
+
+    assert log_in(" correct horse ") == 200
+    assert log_in("correct horse") == 401
+
+
+def test_an_empty_stdin_is_rejected_as_a_password(
+    db: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    type_into_stdin(monkeypatch, "")
+
+    message = failure_message(
+        "create-admin", "--email", "root@example.com", "--password-stdin"
+    )
+
+    assert message.startswith("Invalid password:")
+    assert find_user(db, "root@example.com") is None
 
 
 def test_create_admin_rejects_mismatched_passwords(

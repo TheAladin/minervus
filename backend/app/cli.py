@@ -19,14 +19,17 @@ def validated(schema: object, value: str, label: str) -> str:
         sys.exit(f"Invalid {label}: {error.errors()[0]['msg']}")
 
 
-def prompt_for_password() -> str:
+def read_password(from_stdin: bool) -> str:
+    if from_stdin:
+        # Only the line ending goes, because a password can start or end with spaces.
+        return sys.stdin.readline().rstrip("\r\n")
     password = getpass.getpass("Password: ")
     if password != getpass.getpass("Confirm password: "):
         sys.exit("Passwords don't match")
     return password
 
 
-def create_admin(email: str) -> None:
+def create_admin(email: str, password_stdin: bool) -> None:
     email = validated(Email, email, "email")
     with SessionLocal() as db:
         if db.scalar(select(User).where(User.email == email)) is not None:
@@ -34,7 +37,7 @@ def create_admin(email: str) -> None:
                 f"{email} already has an account. "
                 "If it's yours, make it an admin with promote-admin."
             )
-        password = validated(NewPassword, prompt_for_password(), "password")
+        password = validated(NewPassword, read_password(password_stdin), "password")
         db.add(
             User(email=email, password_hash=hash_password(password), role=Role.ADMIN)
         )
@@ -60,6 +63,11 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     create = commands.add_parser("create-admin", help="create a new admin account")
     create.add_argument("--email", required=True)
+    create.add_argument(
+        "--password-stdin",
+        action="store_true",
+        help="read the password from the first line of stdin instead of prompting",
+    )
     create.set_defaults(run=create_admin)
 
     promote = commands.add_parser(
@@ -68,8 +76,9 @@ def main(argv: Sequence[str] | None = None) -> None:
     promote.add_argument("--email", required=True)
     promote.set_defaults(run=promote_admin)
 
-    args = parser.parse_args(argv)
-    args.run(args.email)
+    args = vars(parser.parse_args(argv))
+    run = args.pop("run")
+    run(**args)
 
 
 if __name__ == "__main__":

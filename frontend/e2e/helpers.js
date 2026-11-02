@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 
-export const PASSWORD = 'correct horse battery'
+import { PASSWORD } from './constants.js'
 
 let counter = 0
 

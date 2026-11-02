@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 
 import { useAuth } from '../auth/useAuth.js'
 import { useAction } from '../hooks/useAction.js'
-import { Button, ErrorMessage } from './ui.jsx'
+import { Button, ErrorMessage, LinkButton } from './ui.jsx'
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -23,6 +23,11 @@ export default function Layout() {
           {user && (
             <nav aria-label="Account" className="flex min-w-0 items-center gap-3">
               <span className="hidden truncate text-sm text-stone-500 sm:inline">{user.email}</span>
+              {user.role === 'admin' && (
+                <LinkButton variant="quiet" to="/admin/users">
+                  Users
+                </LinkButton>
+              )}
               <Button variant="quiet" onClick={() => run(logout)}>
                 Log out
               </Button>
