@@ -8,6 +8,7 @@ import DecksPage from './pages/DecksPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
+import StudyPage from './pages/StudyPage.jsx'
 
 export const routes = createRoutesFromElements(
   <Route element={<Layout />} errorElement={<CrashPage />}>
@@ -18,6 +19,7 @@ export const routes = createRoutesFromElements(
     <Route element={<RequireAuth />}>
       <Route index element={<DecksPage />} />
       <Route path="decks/:deckId" element={<DeckPage />} />
+      <Route path="decks/:deckId/study" element={<StudyPage />} />
     </Route>
     <Route path="*" element={<NotFoundPage />} />
   </Route>,

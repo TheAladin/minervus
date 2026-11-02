@@ -32,6 +32,26 @@ test('shows the deck, its counts and its cards', async () => {
   expect(card).toHaveTextContent('Due now')
 })
 
+test('offers studying only when cards are due', async () => {
+  mockApi(deckRoutes())
+
+  renderApp('/decks/7')
+
+  expect(await screen.findByRole('link', { name: 'Study' })).toHaveAttribute(
+    'href',
+    '/decks/7/study',
+  )
+})
+
+test('hides studying when nothing is due', async () => {
+  mockApi(deckRoutes({ 'GET /decks/7': { ...DECK, due_count: 0 } }))
+
+  renderApp('/decks/7')
+
+  await screen.findByRole('heading', { name: 'Biology' })
+  expect(screen.queryByRole('link', { name: 'Study' })).not.toBeInTheDocument()
+})
+
 test('explains an empty deck', async () => {
   mockApi(deckRoutes({ 'GET /decks/7/cards': [] }))
 

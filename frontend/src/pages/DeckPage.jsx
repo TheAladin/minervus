@@ -1,24 +1,22 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { request } from '../api/client.js'
-import { Button, ErrorMessage, LoadError, Loading, PageHeader, Panel } from '../components/ui.jsx'
+import {
+  BackLink,
+  Button,
+  ErrorMessage,
+  LinkButton,
+  Loading,
+  PageHeader,
+  Panel,
+} from '../components/ui.jsx'
 import CardForm from '../decks/CardForm.jsx'
 import CardItem from '../decks/CardItem.jsx'
+import DeckLoadError from '../decks/DeckLoadError.jsx'
 import DeckNameForm from '../decks/DeckNameForm.jsx'
 import { useAction } from '../hooks/useAction.js'
 import { useResource } from '../hooks/useResource.js'
-
-function DeckNotFound() {
-  return (
-    <>
-      <PageHeader title="Deck not found" />
-      <Link to="/" className="text-sm font-medium underline underline-offset-4">
-        Back to your decks
-      </Link>
-    </>
-  )
-}
 
 export default function DeckPage() {
   const { deckId } = useParams()
@@ -32,11 +30,9 @@ export default function DeckPage() {
   const navigate = useNavigate()
 
   const loadError = deckResource.error ?? cardsResource.error
-  // 422 covers addresses like /decks/abc, which also aren't decks.
-  if (loadError?.status === 404 || loadError?.status === 422) return <DeckNotFound />
   if (loadError) {
     return (
-      <LoadError
+      <DeckLoadError
         error={loadError}
         onRetry={() => {
           deckResource.reload()
@@ -78,9 +74,7 @@ export default function DeckPage() {
 
   return (
     <>
-      <Link to="/" className="mb-2 inline-block text-sm text-stone-500 hover:text-stone-900">
-        ← Your decks
-      </Link>
+      <BackLink to="/">Your decks</BackLink>
       {renaming ? (
         <div className="mb-8">
           <DeckNameForm
@@ -96,6 +90,7 @@ export default function DeckPage() {
           title={deck.name}
           subtitle={`${deck.card_count} ${deck.card_count === 1 ? 'card' : 'cards'} · ${deck.due_count} due now`}
         >
+          {deck.due_count > 0 && <LinkButton to={`${url}/study`}>Study</LinkButton>}
           <Button variant="secondary" onClick={() => setRenaming(true)}>
             Rename
           </Button>

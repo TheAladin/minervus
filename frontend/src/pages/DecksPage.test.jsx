@@ -19,9 +19,12 @@ test('lists decks with their counts and links', async () => {
   const [biology, history] = await screen.findAllByRole('listitem')
   expect(within(biology).getByRole('link', { name: /Biology/ })).toHaveAttribute('href', '/decks/7')
   expect(biology).toHaveTextContent('3 cards')
-  expect(biology).toHaveTextContent('2 due')
+  expect(within(biology).getByRole('link', { name: 'Study 2 due' })).toHaveAttribute(
+    'href',
+    '/decks/7/study',
+  )
   expect(history).toHaveTextContent('1 card')
-  expect(history).not.toHaveTextContent('due')
+  expect(within(history).queryByRole('link', { name: /Study/ })).not.toBeInTheDocument()
 })
 
 test('explains the empty state', async () => {

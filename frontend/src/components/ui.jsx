@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 const focusRing =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900'
 
@@ -8,6 +10,8 @@ const buttonVariants = {
   secondary: 'border-stone-300 bg-white text-stone-800 hover:bg-stone-100',
   danger: 'border-red-200 bg-white text-red-700 hover:bg-red-50',
   quiet: 'border-transparent text-stone-600 hover:bg-stone-100 hover:text-stone-900',
+  // For buttons that set their own colors.
+  custom: 'bg-white',
 }
 
 export function Button({ variant = 'primary', className = '', ...props }) {
@@ -18,6 +22,10 @@ export function Button({ variant = 'primary', className = '', ...props }) {
       {...props}
     />
   )
+}
+
+export function LinkButton({ variant = 'primary', className = '', ...props }) {
+  return <Link className={`${buttonBase} ${buttonVariants[variant]} ${className}`} {...props} />
 }
 
 const controlClasses = `block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm placeholder:text-stone-400 disabled:bg-stone-100 ${focusRing}`
@@ -70,6 +78,14 @@ export function LoadError({ error, onRetry }) {
         Try again
       </Button>
     </div>
+  )
+}
+
+export function BackLink({ to, children }) {
+  return (
+    <Link to={to} className="mb-2 inline-block text-sm text-stone-500 hover:text-stone-900">
+      ← {children}
+    </Link>
   )
 }
 

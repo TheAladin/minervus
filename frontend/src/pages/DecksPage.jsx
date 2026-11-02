@@ -1,29 +1,24 @@
 import { Link, useNavigate } from 'react-router-dom'
 
 import { request } from '../api/client.js'
-import { LoadError, Loading, PageHeader, Panel } from '../components/ui.jsx'
+import { LinkButton, LoadError, Loading, PageHeader, Panel } from '../components/ui.jsx'
 import DeckNameForm from '../decks/DeckNameForm.jsx'
 import { useResource } from '../hooks/useResource.js'
 
 function DeckRow({ deck }) {
   return (
-    <li>
-      <Link
-        to={`/decks/${deck.id}`}
-        className="flex items-center justify-between gap-4 p-4 transition-colors hover:bg-stone-50"
-      >
-        <span className="min-w-0">
-          <span className="block font-serif text-lg font-medium break-words">{deck.name}</span>
-          <span className="block text-sm text-stone-500">
-            {deck.card_count} {deck.card_count === 1 ? 'card' : 'cards'}
-          </span>
+    <li className="flex items-center gap-4 pr-4 transition-colors hover:bg-stone-50">
+      <Link to={`/decks/${deck.id}`} className="min-w-0 flex-1 p-4">
+        <span className="block font-serif text-lg font-medium break-words">{deck.name}</span>
+        <span className="block text-sm text-stone-500">
+          {deck.card_count} {deck.card_count === 1 ? 'card' : 'cards'}
         </span>
-        {deck.due_count > 0 && (
-          <span className="shrink-0 rounded-full bg-teal-50 px-2.5 py-0.5 text-sm font-medium text-teal-800">
-            {deck.due_count} due
-          </span>
-        )}
       </Link>
+      {deck.due_count > 0 && (
+        <LinkButton to={`/decks/${deck.id}/study`} className="shrink-0">
+          Study {deck.due_count} due
+        </LinkButton>
+      )}
     </li>
   )
 }
