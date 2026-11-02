@@ -1,6 +1,8 @@
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 
-import { ApiError, request } from './client.js'
+import { ApiError, request, setUnauthorizedHandler } from './client.js'
+
+afterEach(() => setUnauthorizedHandler(null))
 
 function stubFetch(response) {
   const fetchMock = vi.fn().mockResolvedValue(response)
@@ -104,6 +106,26 @@ test('passes aborts through unchanged', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abort))
 
   await expect(request('/decks')).rejects.toBe(abort)
+})
+
+test('reports a 401 as an ended session', async () => {
+  const handler = vi.fn()
+  setUnauthorizedHandler(handler)
+  stubFetch(jsonResponse({ detail: 'Not authenticated' }, 401))
+
+  await expect(request('/decks')).rejects.toThrow('Not authenticated')
+
+  expect(handler).toHaveBeenCalledOnce()
+})
+
+test('does not treat a 401 from the auth endpoints as an ended session', async () => {
+  const handler = vi.fn()
+  setUnauthorizedHandler(handler)
+  stubFetch(jsonResponse({ detail: 'Incorrect email or password' }, 401))
+
+  await expect(request('/auth/login', { method: 'POST' })).rejects.toThrow('Incorrect')
+
+  expect(handler).not.toHaveBeenCalled()
 })
 
 test('passes through an abort that happens while the body downloads', async () => {

@@ -8,6 +8,13 @@ export class ApiError extends Error {
 
 const FALLBACK_MESSAGE = 'Something went wrong. Try again.'
 
+let unauthorizedHandler = null
+
+/** Sets what to do when a request fails because the session has ended. */
+export function setUnauthorizedHandler(handler) {
+  unauthorizedHandler = handler
+}
+
 function messageFrom(body) {
   const detail = body?.detail
   if (typeof detail === 'string') return detail
@@ -52,6 +59,8 @@ export async function request(path, { method = 'GET', json, form, signal } = {})
   }
 
   if (!response.ok) {
+    // A 401 from /auth/* means bad credentials or no session yet, not an ended session.
+    if (response.status === 401 && !path.startsWith('/auth/')) unauthorizedHandler?.()
     throw new ApiError(response.status, messageFrom(await readJson(response)))
   }
   if (response.status === 204) return null

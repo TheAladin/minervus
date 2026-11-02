@@ -8,7 +8,7 @@ export default defineConfig({
     proxy: {
       // An IP rather than "localhost", which Node can resolve to IPv6 where uvicorn
       // isn't listening.
-      '/api': 'http://127.0.0.1:8000',
+      '/api': process.env.API_PROXY_TARGET ?? 'http://127.0.0.1:8000',
     },
   },
   test: {
