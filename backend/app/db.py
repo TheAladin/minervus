@@ -1,11 +1,20 @@
 from collections.abc import Iterator
 
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import Engine, MetaData, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import settings
 
-engine = create_engine(settings.database_url, pool_pre_ping=True)
+
+def create_db_engine(url: str) -> Engine:
+    # With UTC sessions, adding days to a timestamp gives exact 24-hour days across
+    # clock changes, and the API always reports times at the same offset.
+    return create_engine(
+        url, pool_pre_ping=True, connect_args={"options": "-c timezone=UTC"}
+    )
+
+
+engine = create_db_engine(settings.database_url)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 

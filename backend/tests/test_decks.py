@@ -45,6 +45,7 @@ def test_create_and_get_a_deck(ada: TestClient) -> None:
     assert created.status_code == 201
     assert created.json()["name"] == "Biology"
     assert created.json()["card_count"] == 0
+    assert created.json()["due_count"] == 0
     assert ada.get(f"/api/decks/{created.json()['id']}").json() == created.json()
 
 
@@ -239,6 +240,8 @@ def test_other_users_decks_are_hidden(mallory: TestClient, deck: dict) -> None:
         ("GET", "/api/decks/{deck}/cards/{card}", None),
         ("PATCH", "/api/decks/{deck}/cards/{card}", {"front": "Stolen"}),
         ("DELETE", "/api/decks/{deck}/cards/{card}", None),
+        ("GET", "/api/decks/{deck}/due", None),
+        ("POST", "/api/decks/{deck}/cards/{card}/review", {"rating": "good"}),
     ],
 )
 def test_other_users_get_404_and_change_nothing(
@@ -254,7 +257,10 @@ def test_other_users_get_404_and_change_nothing(
 
     assert mallory.request(method, url, json=body).status_code == 404
 
-    assert ada.get(f"/api/decks/{deck['id']}").json() == deck | {"card_count": 1}
+    assert ada.get(f"/api/decks/{deck['id']}").json() == deck | {
+        "card_count": 1,
+        "due_count": 1,
+    }
     assert ada.get(f"/api/decks/{deck['id']}/cards").json() == [card]
 
 

@@ -11,6 +11,7 @@ from pydantic import (
 )
 
 from app.models import Role
+from app.srs import Rating
 
 Email = Annotated[EmailStr, AfterValidator(str.lower)]
 NewPassword = Annotated[str, Field(min_length=8, max_length=128)]
@@ -69,6 +70,7 @@ class DeckOut(BaseModel):
     name: str
     created_at: datetime
     card_count: int
+    due_count: int
 
 
 class CardCreate(BaseModel):
@@ -93,3 +95,11 @@ class CardOut(BaseModel):
     front: str
     back: str
     created_at: datetime
+    due_at: datetime
+    interval_days: int
+    ease: float
+    repetitions: int
+
+
+class ReviewCreate(BaseModel):
+    rating: Rating

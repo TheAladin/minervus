@@ -19,7 +19,11 @@ router = APIRouter(prefix="/api/decks", tags=["decks"])
 def _decks_with_counts() -> Select:
     return (
         select(
-            Deck.id, Deck.name, Deck.created_at, func.count(Card.id).label("card_count")
+            Deck.id,
+            Deck.name,
+            Deck.created_at,
+            func.count(Card.id).label("card_count"),
+            func.count(Card.id).filter(Card.due_at <= func.now()).label("due_count"),
         )
         .outerjoin(Card, Card.deck_id == Deck.id)
         .group_by(Deck.id)

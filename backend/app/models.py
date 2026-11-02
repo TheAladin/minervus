@@ -1,10 +1,11 @@
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func, true
+from sqlalchemy import DateTime, Enum, ForeignKey, Index, String, Text, func, true
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
+from app.srs import INITIAL_EASE
 
 
 class Role(StrEnum):
@@ -49,13 +50,18 @@ class Deck(Base):
 
 class Card(Base):
     __tablename__ = "cards"
+    __table_args__ = (Index("ix_cards_deck_id_due_at", "deck_id", "due_at"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    deck_id: Mapped[int] = mapped_column(
-        ForeignKey("decks.id", ondelete="CASCADE"), index=True
-    )
+    deck_id: Mapped[int] = mapped_column(ForeignKey("decks.id", ondelete="CASCADE"))
     front: Mapped[str] = mapped_column(Text)
     back: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    due_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    interval_days: Mapped[int] = mapped_column(server_default="0")
+    ease: Mapped[float] = mapped_column(server_default=str(INITIAL_EASE))
+    repetitions: Mapped[int] = mapped_column(server_default="0")

@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.routers import admin, auth, decks
+from app.routers import admin, auth, decks, study
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +17,7 @@ app = FastAPI(title="Minervus")
 app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(decks.router)
+app.include_router(study.router)
 
 
 @app.exception_handler(RequestValidationError)
