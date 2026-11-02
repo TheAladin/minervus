@@ -1,10 +1,11 @@
 from typing import Annotated
 
 from fastapi import Cookie, Depends, HTTPException, Path, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import Role, User
+from app.models import Card, Deck, Role, User
 from app.security import read_session_token
 
 SESSION_COOKIE = "minervus_session"
@@ -35,3 +36,24 @@ def require_admin(user: CurrentUser) -> User:
 
 
 CurrentAdmin = Annotated[User, Depends(require_admin)]
+
+
+def get_owned_deck(deck_id: ResourceId, user: CurrentUser, db: DbSession) -> Deck:
+    # Someone else's deck gets the same 404 as a deck that doesn't exist.
+    deck = db.scalar(select(Deck).where(Deck.id == deck_id, Deck.owner_id == user.id))
+    if deck is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Deck not found")
+    return deck
+
+
+OwnedDeck = Annotated[Deck, Depends(get_owned_deck)]
+
+
+def get_owned_card(card_id: ResourceId, deck: OwnedDeck, db: DbSession) -> Card:
+    card = db.scalar(select(Card).where(Card.id == card_id, Card.deck_id == deck.id))
+    if card is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Card not found")
+    return card
+
+
+OwnedCard = Annotated[Card, Depends(get_owned_card)]
