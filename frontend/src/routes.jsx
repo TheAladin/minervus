@@ -3,7 +3,8 @@ import { createRoutesFromElements, Route } from 'react-router-dom'
 import { PublicOnly, RequireAuth } from './auth/routes.jsx'
 import Layout from './components/Layout.jsx'
 import CrashPage from './pages/CrashPage.jsx'
-import HomePage from './pages/HomePage.jsx'
+import DeckPage from './pages/DeckPage.jsx'
+import DecksPage from './pages/DecksPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
@@ -15,7 +16,8 @@ export const routes = createRoutesFromElements(
       <Route path="register" element={<RegisterPage />} />
     </Route>
     <Route element={<RequireAuth />}>
-      <Route index element={<HomePage />} />
+      <Route index element={<DecksPage />} />
+      <Route path="decks/:deckId" element={<DeckPage />} />
     </Route>
     <Route path="*" element={<NotFoundPage />} />
   </Route>,

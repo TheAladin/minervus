@@ -36,6 +36,10 @@ export function Input({ className = '', ...props }) {
   return <input className={`${controlClasses} ${className}`} {...props} />
 }
 
+export function Textarea({ className = '', ...props }) {
+  return <textarea className={`${controlClasses} ${className}`} {...props} />
+}
+
 export function ErrorMessage({ children }) {
   if (!children) return null
   return (
@@ -51,6 +55,10 @@ export function Loading({ children = 'Loading…' }) {
       {children}
     </p>
   )
+}
+
+export function Panel({ className = '', ...props }) {
+  return <div className={`rounded-lg border border-stone-200 bg-white p-4 sm:p-5 ${className}`} {...props} />
 }
 
 /** Shows a failed load, with a way to try it again. */

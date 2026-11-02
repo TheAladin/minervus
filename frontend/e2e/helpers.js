@@ -28,3 +28,17 @@ export async function logIn(page, email, password = PASSWORD) {
   await page.getByRole('button', { name: 'Log in' }).click()
   await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible()
 }
+
+export async function createDeck(page, name) {
+  await page.goto('/')
+  await page.getByLabel('New deck').fill(name)
+  await page.getByRole('button', { name: 'Create deck' }).click()
+  await expect(page.getByRole('heading', { name })).toBeVisible()
+}
+
+export async function addCard(page, front, back) {
+  await page.getByLabel('Front').fill(front)
+  await page.getByLabel('Back').fill(back)
+  await page.getByRole('button', { name: 'Add card' }).click()
+  await expect(page.getByRole('listitem').filter({ hasText: front })).toBeVisible()
+}

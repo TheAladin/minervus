@@ -9,14 +9,14 @@ function Broken() {
   throw new Error('Rendering failed')
 }
 
-test('renders the layout around the home page', async () => {
-  mockApi(signedIn)
+test('renders the layout around the page', async () => {
+  mockApi({ ...signedIn, 'GET /decks': [] })
 
   renderApp('/')
 
   expect(await screen.findByRole('button', { name: 'Log out' })).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Minervus' })).toHaveAttribute('href', '/')
-  expect(screen.getByRole('main')).toHaveTextContent('spaced repetition')
+  expect(await screen.findByRole('heading', { name: 'Your decks' })).toBeInTheDocument()
 })
 
 test('shows a not found page for unknown paths', async () => {
