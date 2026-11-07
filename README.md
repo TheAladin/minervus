@@ -9,6 +9,47 @@ Flashcards with active recall and spaced repetition, like Anki, plus AI that dra
 
 **Stack:** React, Vite and Tailwind CSS; FastAPI and PostgreSQL; the Anthropic API.
 
+## Screenshots
+
+The app follows your system's light or dark setting, and so do these screenshots.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/study-dark.png">
+  <img alt="Studying a card, with the answer shown and the Again, Hard, Good and Easy buttons" src="docs/screenshots/study-light.png">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/generate-dark.png">
+  <img alt="Draft cards written by Claude from pasted text, ready to edit before saving" src="docs/screenshots/generate-light.png">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/decks-dark.png">
+  <img alt="The deck list, with the number of cards due in each deck" src="docs/screenshots/decks-light.png">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/deck-dark.png">
+  <img alt="A deck's page, with a form to add a card and the list of cards and when each is due" src="docs/screenshots/deck-light.png">
+</picture>
+
+On a phone:
+
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/phone-decks-dark.png">
+    <img alt="The deck list on a phone" src="docs/screenshots/phone-decks-light.png" width="250">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/phone-study-question-dark.png">
+    <img alt="A card's question on a phone" src="docs/screenshots/phone-study-question-light.png" width="250">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/phone-study-answer-dark.png">
+    <img alt="A card's answer and the rating buttons on a phone" src="docs/screenshots/phone-study-answer-light.png" width="250">
+  </picture>
+</p>
+
 ## Setup
 
 You need Python 3.12, Node 22 and Docker.
