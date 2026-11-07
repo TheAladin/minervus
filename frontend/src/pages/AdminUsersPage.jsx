@@ -7,10 +7,14 @@ import { useResource } from '../hooks/useResource.js'
 function StatusBadge({ active }) {
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-        active ? 'bg-teal-50 text-teal-800' : 'bg-stone-200 text-stone-700'
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-caption font-semibold ${
+        active ? 'bg-success/10 text-success' : 'bg-fill text-ink-muted'
       }`}
     >
+      <span
+        aria-hidden="true"
+        className={`size-1.5 rounded-full ${active ? 'bg-success' : 'bg-ink-faint'}`}
+      />
       {active ? 'Active' : 'Deactivated'}
     </span>
   )
@@ -32,11 +36,11 @@ function UserRow({ account, isSelf, onUpdated }) {
   }
 
   return (
-    <tr>
-      <td className="px-4 py-3">
-        <span className="wrap-anywhere">{account.email}</span>
-        <div className="mt-1 flex items-center gap-2">
-          <span className="text-xs text-stone-500 capitalize">{account.role}</span>
+    <tr className="transition-colors hover:bg-fill/40">
+      <td className="py-3.5 pr-4 pl-5">
+        <span className="font-medium wrap-anywhere">{account.email}</span>
+        <div className="mt-1.5 flex items-center gap-2">
+          <span className="text-footnote text-ink-muted capitalize">{account.role}</span>
           <StatusBadge active={account.is_active} />
         </div>
         {error && (
@@ -45,15 +49,18 @@ function UserRow({ account, isSelf, onUpdated }) {
           </div>
         )}
       </td>
-      <td className="hidden px-4 py-3 whitespace-nowrap text-stone-600 sm:table-cell">
+      <td className="hidden px-4 py-3.5 text-subhead whitespace-nowrap text-ink-muted tabular-nums sm:table-cell">
         {new Date(account.created_at).toLocaleDateString()}
       </td>
-      <td className="px-4 py-3 text-right">
+      <td className="py-3.5 pr-5 pl-4 text-right">
         {isSelf ? (
-          <span className="text-stone-500">You</span>
+          <span className="rounded-full bg-fill px-2.5 py-1 text-footnote font-medium text-ink-muted">
+            You
+          </span>
         ) : (
           <Button
-            variant={account.is_active ? 'danger' : 'secondary'}
+            variant={account.is_active ? 'danger' : 'tinted'}
+            size="sm"
             disabled={pending}
             onClick={() => setActive(!account.is_active)}
           >
@@ -79,22 +86,22 @@ export default function AdminUsersPage() {
       {error && <LoadError error={error} onRetry={reload} />}
       {!error && users === undefined && <Loading />}
       {users && (
-        <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-stone-200 text-xs text-stone-500">
+        <div className="animate-rise overflow-x-auto rounded-2xl bg-surface shadow-card dark:shadow-none">
+          <table className="w-full text-left text-subhead">
+            <thead className="border-b border-line text-footnote text-ink-muted">
               <tr>
-                <th scope="col" className="px-4 py-2 font-medium">
+                <th scope="col" className="py-2.5 pr-4 pl-5 font-medium">
                   User
                 </th>
-                <th scope="col" className="hidden px-4 py-2 font-medium sm:table-cell">
+                <th scope="col" className="hidden px-4 py-2.5 font-medium sm:table-cell">
                   Joined
                 </th>
-                <th scope="col" className="px-4 py-2">
+                <th scope="col" className="py-2.5 pr-5 pl-4">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-200">
+            <tbody className="divide-y divide-line">
               {users.map((account) => (
                 <UserRow
                   key={account.id}

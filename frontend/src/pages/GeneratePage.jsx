@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useBlocker, useNavigate, useParams } from 'react-router-dom'
 
 import { request } from '../api/client.js'
+import { SparklesIcon } from '../components/icons.jsx'
 import { BackLink, Loading, PageHeader, Panel } from '../components/ui.jsx'
 import DeckLoadError from '../decks/DeckLoadError.jsx'
 import DraftList from '../generate/DraftList.jsx'
@@ -76,15 +77,22 @@ export default function GeneratePage() {
       <PageHeader
         title="Generate cards"
         subtitle={`Claude will write draft cards for ${deck.data.name}.`}
+        icon={
+          <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-indigo-500 via-violet-500 to-fuchsia-500 text-white sm:size-16">
+            <SparklesIcon className="size-7 sm:size-8" />
+          </span>
+        }
       />
       {drafts === null ? (
-        <Panel>
-          <SourceForm
-            pending={generation.pending}
-            error={generation.error}
-            onSubmit={handleGenerate}
-          />
-        </Panel>
+        <div className={generation.pending ? 'ai-glow rounded-2xl' : undefined}>
+          <Panel>
+            <SourceForm
+              pending={generation.pending}
+              error={generation.error}
+              onSubmit={handleGenerate}
+            />
+          </Panel>
+        </div>
       ) : (
         <DraftList
           drafts={drafts}

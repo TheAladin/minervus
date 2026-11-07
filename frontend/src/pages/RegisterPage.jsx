@@ -1,7 +1,8 @@
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import AuthForm from '../auth/AuthForm.jsx'
 import { useAuth } from '../auth/useAuth.js'
+import { TextLink } from '../components/ui.jsx'
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -18,13 +19,9 @@ export default function RegisterPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link
-            to="/login"
-            state={location.state}
-            className="font-medium underline underline-offset-4"
-          >
+          <TextLink to="/login" state={location.state}>
             Log in
-          </Link>
+          </TextLink>
         </>
       }
     />

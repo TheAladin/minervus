@@ -1,11 +1,15 @@
-import { Button, ErrorMessage, Field, Textarea } from '../components/ui.jsx'
+import { SparklesIcon } from '../components/icons.jsx'
+import { Button, EmptyState, ErrorMessage, Field, Textarea } from '../components/ui.jsx'
 
 function DraftEditor({ draft, number, onChange, onDiscard }) {
   return (
-    <li className="p-4">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-stone-700">Card {number}</h3>
-        <Button variant="quiet" onClick={onDiscard}>
+    <li
+      className="animate-rise rounded-2xl bg-surface p-5 shadow-card dark:shadow-none"
+      style={{ animationDelay: `${Math.min(number - 1, 10) * 50}ms` }}
+    >
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="text-footnote font-semibold text-ink-muted">Card {number}</h3>
+        <Button variant="quietDanger" size="sm" className="-mr-2" onClick={onDiscard}>
           Discard
         </Button>
       </div>
@@ -45,21 +49,25 @@ export default function DraftList({ drafts, onChange, onStartOver, onSave, pendi
 
   if (drafts.length === 0) {
     return (
-      <div className="space-y-4">
-        <p className="text-sm text-stone-500">You've discarded every card.</p>
-        <Button variant="secondary" onClick={onStartOver}>
-          Start over
-        </Button>
-      </div>
+      <EmptyState
+        action={
+          <Button variant="secondary" onClick={onStartOver}>
+            Start over
+          </Button>
+        }
+      >
+        You've discarded every card.
+      </EmptyState>
     )
   }
 
   return (
     <>
-      <p className="mb-4 text-sm text-stone-600">
+      <p className="mb-5 flex animate-rise items-start gap-2.5 rounded-2xl bg-ai/10 px-4 py-3 text-subhead">
+        <SparklesIcon className="mt-0.5 size-4 shrink-0 text-ai" />
         Nothing is saved yet. Edit or discard these cards, then save the ones you want to keep.
       </p>
-      <ul className="mb-4 divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white">
+      <ul className="space-y-3">
         {drafts.map((draft, index) => (
           <DraftEditor
             key={draft.key}
@@ -70,18 +78,22 @@ export default function DraftList({ drafts, onChange, onStartOver, onSave, pendi
           />
         ))}
       </ul>
-      <div className="space-y-3">
+      <div className="sticky bottom-4 z-20 mt-6 space-y-3">
         <ErrorMessage>{error}</ErrorMessage>
-        {hasBlankCard && (
-          <p className="text-sm text-stone-500">Fill in or discard the blank cards to save.</p>
-        )}
-        <div className="flex flex-wrap gap-2">
-          <Button disabled={pending || hasBlankCard} onClick={onSave}>
-            Save {drafts.length} {drafts.length === 1 ? 'card' : 'cards'}
-          </Button>
-          <Button variant="quiet" disabled={pending} onClick={onStartOver}>
-            Start over
-          </Button>
+        <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 rounded-2xl bg-surface/80 py-3 pr-3 pl-5 shadow-raised ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 dark:shadow-none">
+          {hasBlankCard && (
+            <p className="mr-auto text-footnote font-medium text-warning">
+              Fill in or discard the blank cards to save.
+            </p>
+          )}
+          <div className="flex gap-2">
+            <Button variant="quiet" disabled={pending} onClick={onStartOver}>
+              Start over
+            </Button>
+            <Button busy={pending} disabled={hasBlankCard} onClick={onSave}>
+              Save {drafts.length} {drafts.length === 1 ? 'card' : 'cards'}
+            </Button>
+          </div>
         </div>
       </div>
     </>

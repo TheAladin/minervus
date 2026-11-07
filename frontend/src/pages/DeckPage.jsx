@@ -2,17 +2,22 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { request } from '../api/client.js'
+import { CardsIcon, PlayIcon, SparklesIcon } from '../components/icons.jsx'
 import {
   BackLink,
   Button,
+  EmptyState,
   ErrorMessage,
+  focusRing,
   LinkButton,
+  List,
   Loading,
   PageHeader,
   Panel,
 } from '../components/ui.jsx'
 import CardForm from '../decks/CardForm.jsx'
 import CardItem from '../decks/CardItem.jsx'
+import DeckIcon from '../decks/DeckIcon.jsx'
 import DeckLoadError from '../decks/DeckLoadError.jsx'
 import DeckNameForm from '../decks/DeckNameForm.jsx'
 import { useAction } from '../hooks/useAction.js'
@@ -76,7 +81,7 @@ export default function DeckPage() {
     <>
       <BackLink to="/">Your decks</BackLink>
       {renaming ? (
-        <div className="mb-8">
+        <Panel className="mb-8">
           <DeckNameForm
             initialName={deck.name}
             label="Deck name"
@@ -84,13 +89,19 @@ export default function DeckPage() {
             onSubmit={handleRename}
             onCancel={() => setRenaming(false)}
           />
-        </div>
+        </Panel>
       ) : (
         <PageHeader
           title={deck.name}
           subtitle={`${deck.card_count} ${deck.card_count === 1 ? 'card' : 'cards'} · ${deck.due_count} due now`}
+          icon={<DeckIcon deck={deck} className="size-14 rounded-2xl text-title-1 sm:size-16" />}
         >
-          {deck.due_count > 0 && <LinkButton to={`${url}/study`}>Study</LinkButton>}
+          {deck.due_count > 0 && (
+            <LinkButton to={`${url}/study`}>
+              <PlayIcon className="-ml-1 size-4" />
+              Study
+            </LinkButton>
+          )}
           <Button variant="secondary" onClick={() => setRenaming(true)}>
             Rename
           </Button>
@@ -105,23 +116,27 @@ export default function DeckPage() {
         </div>
       )}
 
-      <Panel className="mb-6">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-sm font-semibold text-stone-700">Add a card</h2>
+      <Panel className="mb-10">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-title-3 font-semibold">Add a card</h2>
           <Link
             to={`${url}/generate`}
-            className="text-sm font-medium underline underline-offset-4"
+            className={`inline-flex items-center gap-1.5 rounded-full bg-ai/10 px-3 py-1.5 text-footnote font-semibold text-ai transition-colors hover:bg-ai/15 ${focusRing}`}
           >
+            <SparklesIcon className="size-4" />
             Generate cards with AI
           </Link>
         </div>
         <CardForm submitLabel="Add card" onSubmit={handleAddCard} clearOnSave />
       </Panel>
 
+      <h2 className="mb-3 text-title-3 font-semibold">Cards</h2>
       {cards.length === 0 ? (
-        <p className="text-sm text-stone-500">This deck has no cards yet.</p>
+        <EmptyState icon={<CardsIcon className="size-8" />}>
+          This deck has no cards yet.
+        </EmptyState>
       ) : (
-        <ul className="divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white">
+        <List>
           {cards.map((card) => (
             <CardItem
               key={card.id}
@@ -130,7 +145,7 @@ export default function DeckPage() {
               onDeleted={handleCardDeleted}
             />
           ))}
-        </ul>
+        </List>
       )}
     </>
   )

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { describeDue } from './due.js'
+import { describeDue, isDue } from './due.js'
 
 // June 15, at noon local time.
 const NOW = new Date(2026, 5, 15, 12)
@@ -24,4 +24,10 @@ test.each([
   ['in three years', at(5, 14, 12, 2029), 'Due in 3 years'],
 ])('%s', (_, dueAt, expected) => {
   expect(describeDue(dueAt, NOW)).toBe(expected)
+})
+
+test('a card is due from its due time onwards', () => {
+  expect(isDue(at(5, 15, 11), NOW)).toBe(true)
+  expect(isDue(NOW.toISOString(), NOW)).toBe(true)
+  expect(isDue(at(5, 15, 13), NOW)).toBe(false)
 })

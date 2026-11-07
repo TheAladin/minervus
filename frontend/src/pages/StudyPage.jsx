@@ -1,22 +1,11 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { BackLink, LinkButton, Loading, PageHeader } from '../components/ui.jsx'
+import { CheckIcon, ClockIcon } from '../components/icons.jsx'
+import { BackLink, EmptyState, LinkButton, Loading, PageHeader } from '../components/ui.jsx'
 import DeckLoadError from '../decks/DeckLoadError.jsx'
 import { useResource } from '../hooks/useResource.js'
 import StudySession from '../study/StudySession.jsx'
-
-function EndMessage({ title, deckUrl, children }) {
-  return (
-    <div className="py-8 text-center">
-      <h2 className="font-serif text-2xl font-semibold">{title}</h2>
-      <p className="mt-2 mb-6 text-sm text-stone-500">{children}</p>
-      <LinkButton to={deckUrl} variant="secondary">
-        Back to deck
-      </LinkButton>
-    </div>
-  )
-}
 
 export default function StudyPage() {
   const { deckId } = useParams()
@@ -40,18 +29,29 @@ export default function StudyPage() {
   }
   if (deck.data === undefined || due.data === undefined) return <Loading />
 
+  const backToDeck = (
+    <LinkButton to={deckUrl} variant="secondary">
+      Back to deck
+    </LinkButton>
+  )
+
   let content
   if (due.data.length === 0) {
     content = (
-      <EndMessage title="Nothing due right now" deckUrl={deckUrl}>
+      <EmptyState icon={<ClockIcon className="size-8" />} title="Nothing due right now" action={backToDeck}>
         This deck has no cards to review. Check back later.
-      </EndMessage>
+      </EmptyState>
     )
   } else if (completed !== null) {
     content = (
-      <EndMessage title="Session complete" deckUrl={deckUrl}>
+      <EmptyState
+        icon={<CheckIcon className="size-8" />}
+        iconClassName="animate-pop bg-success text-white dark:text-black"
+        title="Session complete"
+        action={backToDeck}
+      >
         You reviewed {completed} {completed === 1 ? 'card' : 'cards'}.
-      </EndMessage>
+      </EmptyState>
     )
   } else {
     content = <StudySession deckId={deckId} cards={due.data} onFinished={setCompleted} />

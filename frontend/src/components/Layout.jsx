@@ -3,7 +3,8 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 
 import { useAuth } from '../auth/useAuth.js'
 import { useAction } from '../hooks/useAction.js'
-import { Button, ErrorMessage, LinkButton } from './ui.jsx'
+import { AppIcon } from './icons.jsx'
+import { Button, ErrorMessage, focusRing, LinkButton } from './ui.jsx'
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -14,28 +15,34 @@ export default function Layout() {
   useEffect(() => clearError(), [pathname, clearError])
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-stone-200 bg-white">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-4 px-4">
-          <Link to="/" className="font-serif text-xl font-semibold tracking-tight">
+    <div className="min-h-dvh">
+      <header className="sticky top-0 z-30 border-b border-line bg-canvas/75 backdrop-blur-xl backdrop-saturate-150">
+        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link
+            to="/"
+            className={`-ml-1 flex items-center gap-2.5 rounded-lg px-1 text-body font-semibold ${focusRing}`}
+          >
+            <AppIcon className="size-7" />
             Minervus
           </Link>
           {user && (
-            <nav aria-label="Account" className="flex min-w-0 items-center gap-3">
-              <span className="hidden truncate text-sm text-stone-500 sm:inline">{user.email}</span>
+            <nav aria-label="Account" className="flex min-w-0 items-center gap-1">
+              <span className="mr-2 hidden truncate text-footnote text-ink-muted sm:inline">
+                {user.email}
+              </span>
               {user.role === 'admin' && (
-                <LinkButton variant="quiet" to="/admin/users">
+                <LinkButton variant="quiet" size="sm" to="/admin/users">
                   Users
                 </LinkButton>
               )}
-              <Button variant="quiet" onClick={() => run(logout)}>
+              <Button variant="quiet" size="sm" onClick={() => run(logout)}>
                 Log out
               </Button>
             </nav>
           )}
         </div>
       </header>
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:py-10">
+      <main key={pathname} className="mx-auto max-w-3xl animate-fade-in px-4 pt-8 pb-20 sm:px-6 sm:pt-12">
         {logoutError && (
           <div className="mb-6">
             <ErrorMessage>Couldn't log out. {logoutError}</ErrorMessage>

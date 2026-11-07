@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { DocumentIcon, SparklesIcon } from '../components/icons.jsx'
 import { Button, ErrorMessage, Field, Input, Textarea } from '../components/ui.jsx'
 
 // These match the limits in the backend, which has the final say.
@@ -12,16 +13,30 @@ const MODES = [
   { value: 'pdf', label: 'Upload a PDF' },
 ]
 
+const megabytes = new Intl.NumberFormat('en', { maximumFractionDigits: 1 })
+
+function formatSize(bytes) {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
+  return `${megabytes.format(bytes / 1024 / 1024)} MB`
+}
+
+/** Two options in a track, with a thumb that slides to the chosen one. */
 function ModePicker({ mode, onChange }) {
+  const selected = MODES.findIndex(({ value }) => value === mode)
   return (
     <fieldset>
-      <legend className="mb-1 text-sm font-medium text-stone-700">Source</legend>
-      <div className="inline-flex rounded-md border border-stone-300 bg-white p-0.5">
+      <legend className="sr-only">Source</legend>
+      <div className="relative grid w-full grid-cols-2 rounded-[0.625rem] bg-fill p-0.5 sm:w-80">
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0.5 left-0.5 w-[calc(50%-0.125rem)] rounded-lg bg-thumb shadow-thumb transition-transform duration-500 ease-spring"
+          style={{ transform: `translateX(${selected * 100}%)` }}
+        />
         {MODES.map(({ value, label }) => (
           <label
             key={value}
-            className={`cursor-pointer rounded px-3 py-1.5 text-sm font-medium transition-colors has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-stone-900 ${
-              mode === value ? 'bg-stone-900 text-white' : 'text-stone-600 hover:text-stone-900'
+            className={`relative cursor-pointer rounded-lg px-3 py-1.5 text-center text-footnote transition-colors has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
+              mode === value ? 'font-semibold text-ink' : 'font-medium text-ink-muted hover:text-ink'
             }`}
           >
             <input
@@ -70,7 +85,7 @@ export default function SourceForm({ pending, error, onSubmit }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <ModePicker mode={mode} onChange={handleModeChange} />
 
       {mode === 'text' ? (
@@ -79,38 +94,59 @@ export default function SourceForm({ pending, error, onSubmit }) {
             <Textarea
               rows={10}
               value={text}
+              placeholder="Paste notes, an article or a chapter…"
               aria-invalid={textTooLong}
               onChange={(event) => setText(event.target.value)}
             />
           </Field>
-          <p className={`mt-1 text-xs ${textTooLong ? 'font-medium text-red-700' : 'text-stone-500'}`}>
+          <p
+            className={`mt-1.5 px-1 text-right text-caption tabular-nums ${textTooLong ? 'font-medium text-danger' : 'text-ink-muted'}`}
+          >
             {textLength.toLocaleString('en')} of {MAX_SOURCE_CHARS.toLocaleString('en')} characters
           </p>
         </div>
       ) : (
         <div>
           <Field label="PDF file" hint="Up to 10 MB. Scanned PDFs without selectable text won't work.">
-            <Input
-              type="file"
-              accept="application/pdf,.pdf"
-              aria-invalid={fileTooLarge}
-              className="file:mr-3 file:rounded file:border-0 file:bg-stone-100 file:px-3 file:py-1 file:text-sm file:font-medium file:text-stone-800"
-              onChange={(event) => setFile(event.target.files[0] ?? null)}
-            />
+            <span
+              className={`relative flex flex-col items-center gap-1 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
+                fileTooLarge
+                  ? 'border-danger/50 bg-danger/5'
+                  : 'border-ink-faint/30 hover:border-accent/50 hover:bg-accent/5'
+              }`}
+            >
+              <DocumentIcon className="mb-2 size-9 text-ink-faint" />
+              <span aria-hidden="true" className="text-callout font-medium break-all">
+                {file ? file.name : 'Choose a PDF'}
+              </span>
+              <span aria-hidden="true" className="text-footnote text-ink-muted">
+                {file ? formatSize(file.size) : 'or drop it here'}
+              </span>
+              <input
+                type="file"
+                accept="application/pdf,.pdf"
+                aria-invalid={fileTooLarge}
+                className="absolute inset-0 cursor-pointer opacity-0"
+                onChange={(event) => setFile(event.target.files[0] ?? null)}
+              />
+            </span>
           </Field>
           {fileTooLarge && (
-            <p className="mt-1 text-xs font-medium text-red-700">This file is larger than 10 MB.</p>
+            <p className="mt-1.5 px-1 text-caption font-medium text-danger">
+              This file is larger than 10 MB.
+            </p>
           )}
         </div>
       )}
 
-      <div className="max-w-48">
+      <div className="w-48">
         <Field label="Maximum number of cards" hint={`From 1 to ${MAX_CARDS}.`}>
           <Input
             type="number"
             min={1}
             max={MAX_CARDS}
             required
+            className="tabular-nums"
             value={Number.isNaN(maxCards) ? '' : maxCards}
             onChange={(event) => setMaxCards(event.target.valueAsNumber)}
           />
@@ -119,15 +155,16 @@ export default function SourceForm({ pending, error, onSubmit }) {
 
       <ErrorMessage>{error}</ErrorMessage>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={pending || !ready || !validCount}>
-          {pending ? 'Generating…' : 'Generate cards'}
-        </Button>
+      <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-line pt-5">
         {pending && (
-          <p role="status" className="text-sm text-stone-500">
+          <p role="status" className="text-footnote text-ink-muted">
             This usually takes under a minute.
           </p>
         )}
+        <Button type="submit" variant="ai" busy={pending} disabled={!ready || !validCount}>
+          {!pending && <SparklesIcon className="-ml-1 size-4" />}
+          {pending ? 'Generating…' : 'Generate cards'}
+        </Button>
       </div>
     </form>
   )

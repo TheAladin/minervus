@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { request } from '../api/client.js'
 import { Button, ErrorMessage } from '../components/ui.jsx'
 import { useAction } from '../hooks/useAction.js'
-import { describeDue } from '../lib/due.js'
+import { describeDue, isDue } from '../lib/due.js'
 import CardForm from './CardForm.jsx'
 
 export default function CardItem({ card, onUpdated, onDeleted }) {
@@ -26,7 +26,7 @@ export default function CardItem({ card, onUpdated, onDeleted }) {
 
   if (editing) {
     return (
-      <li className="p-4">
+      <li className="px-5 py-5">
         <CardForm
           initial={card}
           submitLabel="Save"
@@ -37,19 +37,29 @@ export default function CardItem({ card, onUpdated, onDeleted }) {
     )
   }
 
+  const due = isDue(card.due_at)
+
   return (
-    <li className="p-4">
-      <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
-        <p className="font-serif break-words whitespace-pre-wrap">{card.front}</p>
-        <p className="break-words whitespace-pre-wrap text-stone-600">{card.back}</p>
+    <li className="group animate-rise px-5 pt-4 pb-3">
+      <div className="grid gap-x-8 gap-y-1 sm:grid-cols-2">
+        <p className="font-medium break-words whitespace-pre-wrap">{card.front}</p>
+        <p className="break-words whitespace-pre-wrap text-ink-muted">{card.back}</p>
       </div>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs text-stone-500">{describeDue(card.due_at)}</span>
-        <div className="flex gap-1">
-          <Button variant="quiet" onClick={() => setEditing(true)}>
+        <span
+          className={`flex items-center gap-1.5 text-footnote ${due ? 'font-medium text-link' : 'text-ink-muted'}`}
+        >
+          <span
+            aria-hidden="true"
+            className={`size-1.5 rounded-full ${due ? 'bg-accent' : 'bg-ink-faint/60'}`}
+          />
+          {describeDue(card.due_at)}
+        </span>
+        <div className="-mr-2 flex gap-0.5 transition-opacity group-focus-within:opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100">
+          <Button variant="quiet" size="sm" onClick={() => setEditing(true)}>
             Edit
           </Button>
-          <Button variant="quiet" disabled={pending} onClick={handleDelete}>
+          <Button variant="quietDanger" size="sm" disabled={pending} onClick={handleDelete}>
             Delete
           </Button>
         </div>

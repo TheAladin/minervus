@@ -3,7 +3,14 @@ import { useState } from 'react'
 import { Button, ErrorMessage, Field, Input } from '../components/ui.jsx'
 import { useAction } from '../hooks/useAction.js'
 
-export default function DeckNameForm({ initialName = '', label, submitLabel, onSubmit, onCancel }) {
+export default function DeckNameForm({
+  initialName = '',
+  label,
+  placeholder,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}) {
   const [name, setName] = useState(initialName)
   const { run, pending, error } = useAction()
 
@@ -21,19 +28,20 @@ export default function DeckNameForm({ initialName = '', label, submitLabel, onS
               required
               maxLength={200}
               autoFocus={Boolean(initialName)}
+              placeholder={placeholder}
               value={name}
               onChange={(event) => setName(event.target.value)}
             />
           </Field>
         </div>
-        <Button type="submit" disabled={pending || !name.trim()}>
-          {submitLabel}
-        </Button>
         {onCancel && (
           <Button variant="quiet" onClick={onCancel}>
             Cancel
           </Button>
         )}
+        <Button type="submit" disabled={pending || !name.trim()}>
+          {submitLabel}
+        </Button>
       </div>
       <ErrorMessage>{error}</ErrorMessage>
     </form>

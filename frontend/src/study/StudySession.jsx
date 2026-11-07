@@ -1,23 +1,27 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { request } from '../api/client.js'
-import { Button, ErrorMessage, Panel } from '../components/ui.jsx'
+import { Button, ErrorMessage } from '../components/ui.jsx'
 
 const RATINGS = [
-  { value: 'again', label: 'Again', key: '1', colors: 'border-red-300 text-red-800 hover:bg-red-50' },
-  {
-    value: 'hard',
-    label: 'Hard',
-    key: '2',
-    colors: 'border-amber-300 text-amber-800 hover:bg-amber-50',
-  },
-  { value: 'good', label: 'Good', key: '3', colors: 'border-teal-300 text-teal-800 hover:bg-teal-50' },
-  { value: 'easy', label: 'Easy', key: '4', colors: 'border-sky-300 text-sky-800 hover:bg-sky-50' },
+  { value: 'again', label: 'Again', key: '1', color: 'text-danger hover:bg-danger/10' },
+  { value: 'hard', label: 'Hard', key: '2', color: 'text-warning hover:bg-warning/10' },
+  { value: 'good', label: 'Good', key: '3', color: 'text-success hover:bg-success/10' },
+  { value: 'easy', label: 'Easy', key: '4', color: 'text-link hover:bg-accent/10' },
 ]
 
+// A long side gets smaller, left-aligned text, so that a paragraph stays readable.
+function sideSize(text, short, long) {
+  return text.length > 120 ? `${long} text-left` : short
+}
+
+/** The key for a button, shown only to people with a mouse, who likely have a keyboard. */
 function KeyHint({ children }) {
   return (
-    <kbd aria-hidden="true" className="hidden font-sans text-xs opacity-60 sm:inline">
+    <kbd
+      aria-hidden="true"
+      className="hidden h-5 min-w-5 items-center justify-center rounded-md bg-current/12 px-1.5 font-sans text-caption font-semibold opacity-80 pointer-fine:inline-flex"
+    >
       {children}
     </kbd>
   )
@@ -27,6 +31,8 @@ function KeyHint({ children }) {
 export default function StudySession({ deckId, cards, onFinished }) {
   const [queue, setQueue] = useState(cards)
   const [revealed, setRevealed] = useState(false)
+  // Counts the cards shown, so each one animates in, even a card that Again brings back.
+  const [turn, setTurn] = useState(0)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState(null)
   const completed = useRef(0)
@@ -59,11 +65,13 @@ export default function StudySession({ deckId, cards, onFinished }) {
           setQueue((current) => current.filter(({ id }) => id !== cardId))
         }
         setRevealed(false)
+        setTurn((count) => count + 1)
       } catch (caught) {
         // Reviewed or deleted elsewhere, such as in another tab, so there's nothing to do.
         if (caught.status === 409 || caught.status === 404) {
           setQueue((current) => current.filter(({ id }) => id !== cardId))
           setRevealed(false)
+          setTurn((count) => count + 1)
         } else {
           setError(caught.message)
         }
@@ -96,27 +104,63 @@ export default function StudySession({ deckId, cards, onFinished }) {
 
   if (!card) return null
 
+  const done = cards.length - queue.length
+
   return (
     <>
-      <p className="mb-3 text-right text-sm text-stone-500">
-        {queue.length} {queue.length === 1 ? 'card' : 'cards'} left
-      </p>
-      <Panel className="mb-4 flex min-h-64 flex-col justify-center gap-6 px-6 py-10 text-center sm:px-10">
-        <p className="font-serif text-2xl leading-snug break-words whitespace-pre-wrap">
-          {card.front}
+      <div className="mb-6 flex items-center gap-4">
+        <div aria-hidden="true" className="h-1.5 flex-1 overflow-hidden rounded-full bg-fill">
+          <div
+            className="h-full rounded-full bg-accent transition-[width] duration-700 ease-spring"
+            style={{ width: `${(done / cards.length) * 100}%` }}
+          />
+        </div>
+        <p className="text-footnote font-medium text-ink-muted tabular-nums">
+          {queue.length} {queue.length === 1 ? 'card' : 'cards'} left
         </p>
-        {revealed && (
-          <>
-            <hr className="border-stone-200" />
-            <p
-              aria-live="polite"
-              className="font-serif text-xl leading-snug break-words whitespace-pre-wrap text-stone-700"
-            >
-              {card.back}
-            </p>
-          </>
+      </div>
+
+      <div className="relative mb-12">
+        {queue.length > 2 && (
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-10 top-5 -bottom-5 rounded-[2rem] bg-surface/60 shadow-card dark:bg-surface/40"
+          />
         )}
-      </Panel>
+        {queue.length > 1 && (
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-5 top-2.5 -bottom-2.5 rounded-[2rem] bg-surface/85 shadow-card dark:bg-surface/70"
+          />
+        )}
+        <div
+          key={turn}
+          className="relative flex min-h-80 animate-card-in flex-col justify-center rounded-[2rem] bg-surface px-6 py-12 text-center shadow-raised sm:px-12 dark:shadow-none"
+        >
+          <p
+            className={`font-semibold break-words whitespace-pre-wrap ${sideSize(card.front, 'text-title-1 sm:text-[2rem]/[1.25]', 'text-title-3')}`}
+          >
+            {card.front}
+          </p>
+          <div
+            aria-live="polite"
+            className={`grid transition-[grid-template-rows] duration-500 ease-spring ${revealed ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+          >
+            <div className="min-h-0 overflow-hidden">
+              {revealed && (
+                <div className="animate-reveal">
+                  <hr className="mx-auto mt-8 mb-7 w-16 border-line" />
+                  <p
+                    className={`break-words whitespace-pre-wrap text-ink-muted ${sideSize(card.back, 'text-title-3 sm:text-title-2', 'text-body')}`}
+                  >
+                    {card.back}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {error && (
         <div className="mb-4">
@@ -125,12 +169,13 @@ export default function StudySession({ deckId, cards, onFinished }) {
       )}
 
       {revealed ? (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {RATINGS.map(({ value, label, key, colors }) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {RATINGS.map(({ value, label, key, color }) => (
             <Button
               key={value}
-              variant="custom"
-              className={`py-3 ${colors}`}
+              variant="surface"
+              size="lg"
+              className={`font-semibold ${color}`}
               disabled={pending}
               onClick={() => rate(value)}
             >
@@ -139,7 +184,7 @@ export default function StudySession({ deckId, cards, onFinished }) {
           ))}
         </div>
       ) : (
-        <Button autoFocus className="w-full py-3" onClick={() => setRevealed(true)}>
+        <Button autoFocus size="lg" className="w-full" onClick={() => setRevealed(true)}>
           Show answer <KeyHint>Space</KeyHint>
         </Button>
       )}

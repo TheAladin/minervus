@@ -1,16 +1,214 @@
 @import 'tailwindcss';
 
 @theme {
+  /* San Francisco on Apple devices, and Inter everywhere else. */
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    sans-serif;
-  /* Card text and the wordmark use a serif, which reads well at large sizes. */
-  --font-serif:
-    'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, ui-serif, serif;
+    -apple-system, BlinkMacSystemFont, 'Inter Variable', 'Segoe UI Variable Text', 'Segoe UI',
+    system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+  /* Semantic colors. Dark mode swaps the values in the base layer below. */
+  --color-canvas: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-ink: #1d1d1f;
+  --color-ink-muted: #6e6e73;
+  --color-ink-faint: #86868b;
+  --color-line: rgb(0 0 0 / 0.08);
+  --color-fill: rgb(120 120 128 / 0.12);
+  --color-fill-strong: rgb(120 120 128 / 0.2);
+  --color-thumb: #ffffff;
+  --color-accent: #0071e3;
+  --color-accent-hover: #0077ed;
+  --color-link: #0066cc;
+  /* A shade darker than Apple's, so text on their tints passes WCAG AA on the canvas. */
+  --color-danger: #c9001a;
+  --color-warning: #a14600;
+  --color-success: #157030;
+  --color-ai: #7c3aed;
+
+  /* Apple's text styles, with the tracking that keeps large sizes tight. */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-footnote: 0.8125rem;
+  --text-footnote--line-height: 1.125rem;
+  --text-footnote--letter-spacing: -0.006em;
+  --text-subhead: 0.9375rem;
+  --text-subhead--line-height: 1.25rem;
+  --text-subhead--letter-spacing: -0.012em;
+  --text-callout: 1rem;
+  --text-callout--line-height: 1.375rem;
+  --text-callout--letter-spacing: -0.014em;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.5rem;
+  --text-body--letter-spacing: -0.016em;
+  --text-title-3: 1.25rem;
+  --text-title-3--line-height: 1.625rem;
+  --text-title-3--letter-spacing: -0.017em;
+  --text-title-2: 1.375rem;
+  --text-title-2--line-height: 1.75rem;
+  --text-title-2--letter-spacing: -0.018em;
+  --text-title-1: 1.75rem;
+  --text-title-1--line-height: 2.125rem;
+  --text-title-1--letter-spacing: -0.021em;
+  --text-large-title: 2.125rem;
+  --text-large-title--line-height: 2.5rem;
+  --text-large-title--letter-spacing: -0.024em;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 2px 10px -2px rgb(0 0 0 / 0.06);
+  --shadow-raised:
+    0 1px 2px rgb(0 0 0 / 0.04), 0 12px 32px -8px rgb(0 0 0 / 0.12),
+    0 32px 64px -24px rgb(0 0 0 / 0.1);
+  --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04);
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Damped springs, sampled into linear() easings: a gentle one and a bouncy one. */
+  --ease-spring: linear(
+    0, 0.031, 0.107, 0.208, 0.32, 0.432, 0.538, 0.634, 0.717, 0.788, 0.847, 0.894, 0.93, 0.958,
+    0.979, 0.994, 1.004, 1.01, 1.013, 1.015, 1.015, 1.014, 1.013, 1.011, 1.01, 1.008, 1.006, 1.005,
+    1.004, 1.003, 1
+  );
+  --ease-spring-bouncy: linear(
+    0, 0.033, 0.118, 0.235, 0.368, 0.504, 0.633, 0.749, 0.848, 0.93, 0.993, 1.039, 1.069, 1.087,
+    1.094, 1.094, 1.087, 1.077, 1.065, 1.052, 1.039, 1.028, 1.018, 1.009, 1.003, 0.998, 0.994,
+    0.992, 0.991, 0.991, 0.991, 0.992, 0.993, 0.995, 0.996, 0.997, 1
+  );
+
+  --animate-fade-in: fade-in 0.25s ease-out both;
+  --animate-rise: rise 0.5s var(--ease-out-quint) both;
+  --animate-card-in: card-in 0.6s var(--ease-spring) both;
+  --animate-reveal: reveal 0.45s var(--ease-out-quint) both;
+  --animate-pop: pop 0.7s var(--ease-spring-bouncy) both;
+  --animate-spinner: spinner-turn 0.8s steps(8) infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.96);
+    }
+  }
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+      filter: blur(4px);
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+  }
+  @keyframes spinner-turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }
 
 @layer base {
+  :root {
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-canvas: #000000;
+      --color-surface: #1c1c1e;
+      --color-ink: #f5f5f7;
+      --color-ink-muted: #a1a1a6;
+      --color-ink-faint: #6e6e73;
+      --color-line: rgb(255 255 255 / 0.1);
+      --color-fill: rgb(118 118 128 / 0.24);
+      --color-fill-strong: rgb(118 118 128 / 0.36);
+      --color-thumb: #636366;
+      --color-link: #2997ff;
+      --color-danger: #ff6961;
+      --color-warning: #ffb340;
+      --color-success: #30d158;
+      --color-ai: #b392ff;
+    }
+  }
+
+  html {
+    background-color: var(--color-canvas);
+  }
+
   body {
-    @apply bg-stone-50 text-stone-900 antialiased;
+    @apply bg-canvas font-sans text-body text-ink antialiased;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  }
+}
+
+@property --glow-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes glow-turn {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+/* The moving rainbow edge around a panel while Claude writes cards. */
+@utility ai-glow {
+  position: relative;
+  isolation: isolate;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -1.5px;
+    border-radius: calc(var(--radius-2xl) + 1.5px);
+    background: conic-gradient(
+      from var(--glow-angle),
+      #2f7bff,
+      #8f5cff,
+      #e64fb8,
+      #ff8a3d,
+      #2f7bff
+    );
+    animation: glow-turn 3s linear infinite;
+  }
+
+  &::before {
+    inset: -4px;
+    filter: blur(16px);
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+
+  /* A spinner still has to say that something is happening. */
+  .animate-spinner {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
   }
 }

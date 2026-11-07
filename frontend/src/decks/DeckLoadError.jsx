@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom'
-
-import { LoadError, PageHeader } from '../components/ui.jsx'
+import { SearchIcon } from '../components/icons.jsx'
+import { EmptyState, LinkButton, LoadError } from '../components/ui.jsx'
 
 /** Shows why a deck couldn't load, with a retry if trying again could help. */
 export default function DeckLoadError({ error, onRetry }) {
@@ -9,11 +8,17 @@ export default function DeckLoadError({ error, onRetry }) {
     return <LoadError error={error} onRetry={onRetry} />
   }
   return (
-    <>
-      <PageHeader title="Deck not found" />
-      <Link to="/" className="text-sm font-medium underline underline-offset-4">
-        Back to your decks
-      </Link>
-    </>
+    <EmptyState
+      level={1}
+      icon={<SearchIcon className="size-8" />}
+      title="Deck not found"
+      action={
+        <LinkButton variant="secondary" to="/">
+          Back to your decks
+        </LinkButton>
+      }
+    >
+      It may have been deleted, or the link may be wrong.
+    </EmptyState>
   )
 }

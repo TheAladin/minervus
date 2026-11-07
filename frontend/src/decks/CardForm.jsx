@@ -32,7 +32,7 @@ export default function CardForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Front">
           <Textarea
@@ -40,6 +40,7 @@ export default function CardForm({
             rows={3}
             required
             maxLength={10_000}
+            placeholder="A question or prompt"
             value={front}
             onChange={(event) => setFront(event.target.value)}
           />
@@ -49,21 +50,22 @@ export default function CardForm({
             rows={3}
             required
             maxLength={10_000}
+            placeholder="The answer"
             value={back}
             onChange={(event) => setBack(event.target.value)}
           />
         </Field>
       </div>
       <ErrorMessage>{error}</ErrorMessage>
-      <div className="flex gap-2">
-        <Button type="submit" disabled={pending || !front.trim() || !back.trim()}>
-          {submitLabel}
-        </Button>
+      <div className="flex justify-end gap-2">
         {onCancel && (
           <Button variant="quiet" onClick={onCancel}>
             Cancel
           </Button>
         )}
+        <Button type="submit" disabled={pending || !front.trim() || !back.trim()}>
+          {submitLabel}
+        </Button>
       </div>
     </form>
   )
